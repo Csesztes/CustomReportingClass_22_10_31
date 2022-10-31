@@ -1,0 +1,26 @@
+Option Explicit
+
+Public Sub sendMail()
+    
+    Dim x As New clsOlMail
+    With x
+        .SaveAsOtherWB                      ' save with today date
+        .DeleteGuideSheets                  ' delete unwanted sheets
+        .CopyPasteOverA_B_columns           ' copy and paste over formulas
+        .DeletePowerQuery                   ' delete power query
+        .SaveAsOtherWB                      'save again once all the formating is done
+        .Subject = "ATD negative checking process "
+        .sendTO = "dummy@dummy.com"
+        .ccSendTO = "dummy@dummy.com"
+        '.sendTO = "dummy@dummy.com"        ' only for testing
+        .Body = "Dear All, " & "<br><b\r>" & "<br><b\r>" _
+            & "We would like to support and standardize the way how ATD negative is checked by the Planners in APO SNP - based on that you can check your SKUs and take the necessary actions to avert any ATD negatives. See the report attached." _
+                & "<br><b\r>" & "<br><b\r>" & _
+                    "Job aid: <br><a href=""dummylink">JobAId </a><\br>   " & "<br><b\r>" & "<br><b\r>" & _
+                    "If you have any questions, need help regarding the checking process, please turn to your Lead Planner and/or Team Leader. " & "<br><b\r>" & " If you have any questions, issues regarding the report itself, please turn to Rita."
+        .createMail
+    End With
+
+End Sub
+
+
