@@ -1,0 +1,92 @@
+Option Explicit
+
+Private olApp As Outlook.Application
+Private olMail As Outlook.MailItem
+Private pSubject As String
+Private psendTo As String
+Private pccSendTo As String
+Private pBody As String
+Private pNewWorkbookPath As String
+Private pNewWorkbook As Workbook
+
+Public Property Get Subject() As String
+    Subject = pSubject & " WK" & WorksheetFunction.WeekNum(Date) & ": " & Date
+End Property
+
+Public Property Let Subject(myvalue As String)
+    pSubject = myvalue
+End Property
+
+Public Property Get sendTO() As String
+    sendTO = psendTo
+End Property
+
+Public Property Let sendTO(myvalue As String)
+    psendTo = myvalue
+End Property
+
+Public Property Get ccSendTO() As String
+    ccSendTO = pccSendTo
+End Property
+
+Public Property Let ccSendTO(myvalue As String)
+    pccSendTo = myvalue
+End Property
+
+Public Property Let Body(myvalue As String)
+    pBody = myvalue
+End Property
+Public Property Get NewWorkbook() As Workbook
+    NewWorkbook = pNewWorkbook
+End Property
+
+Sub createMail()
+    
+    Set olApp = New Outlook.Application
+    Set olMail = olApp.CreateItem(olMailItem)
+    
+    With olMail
+        .Display
+        .Subject = Subject
+        .Attachments.Add pNewWorkbook.FullNameURLEncoded
+        .To = sendTO
+        .CC = ccSendTO
+        .HTMLBody = pBody & .HTMLBody
+    End With
+    
+End Sub
+
+Sub DeleteGuideSheets()
+    
+    
+    Application.DisplayAlerts = False
+    Dim ws As Worksheet
+    For Each ws In pNewWorkbook.Worksheets
+        If ws.Name = "info" Then
+            ws.Delete
+        End If
+    Next ws
+    Application.DisplayAlerts = True
+    
+End Sub
+
+Sub SaveAsOtherWB()
+    Application.DisplayAlerts = False
+    pNewWorkbookPath = ThisWorkbook.Path & "\" & "Check_negative_ATD_" & Date & ".xlsx"
+    ThisWorkbook.SaveAs pNewWorkbookPath, xlOpenXMLWorkbook
+    Set pNewWorkbook = Workbooks.Open(pNewWorkbookPath)
+    Application.DisplayAlerts = True
+    
+End Sub
+
+Sub CopyPasteOverA_B_columns()
+    Dim lastrow As Long
+    lastrow = pNewWorkbook.Sheets("Raw Data").Range("B2").End(xlDown).Row
+    pNewWorkbook.Sheets("Raw Data").Range("A2", "B" & lastrow).Copy
+    pNewWorkbook.Sheets("Raw Data").Range("A2").PasteSpecial (xlPasteValuesAndNumberFormats)
+    
+End Sub
+
+Sub DeletePowerQuery()
+    pNewWorkbook.Queries(1).Delete
+End Sub
